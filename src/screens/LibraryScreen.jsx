@@ -182,7 +182,7 @@ export default function LibraryScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, content: { padding: 20, paddingBottom: 35, width: '100%', maxWidth: 1000, alignSelf: 'center' },
   header: { gap: 22, paddingBottom: 22 }, stats: { borderBottomWidth: 1, borderColor: colors.border, paddingVertical: 20, flexDirection: 'row' },
-  stat: { flex: 1, gap: 8, alignItems: 'flex-start' }, statNumber: { fontVariant: ['tabular-nums'], fontSize: 28, fontFamily: fonts.medium, color: colors.accent }, statLabel: { fontSize: 11, letterSpacing: 0.8, color: colors.accent, fontFamily: fonts.bold },
+  stat: { flex: 1, gap: 8, alignItems: 'center' }, statNumber: { fontVariant: ['tabular-nums'], fontSize: 28, fontFamily: fonts.medium, color: colors.accent }, statLabel: { fontSize: 11, letterSpacing: 0.8, color: colors.accent, fontFamily: fonts.bold },
   search: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, minHeight: 52, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.border, borderRadius: 6, gap: 10 },
   searchInput: { fontFamily: fonts.regular, flex: 1, minHeight: 50, fontSize: 16, color: colors.ink }, chips: { gap: 8 }, wrap: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   entry: { flexDirection: 'row', gap: 16, paddingVertical: 18, borderBottomWidth: 1, borderColor: colors.border },
