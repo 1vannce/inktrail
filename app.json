@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F7F7F0",
+    "backgroundColor": "#FFFFFF",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.inktrail.reader"
@@ -17,7 +17,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "InkTrail — Your next chapter"
+      "name": "InkTrail"
     },
     "plugins": [
       "expo-router",

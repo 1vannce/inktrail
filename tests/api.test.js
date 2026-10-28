@@ -229,3 +229,47 @@ test('a caller cancellation stays distinguishable from a network error', async (
     return true;
   });
 });
+
+test('genre filtering keeps independent format cursors and combines with title search', async () => {
+  const requests = [];
+  globalThis.fetch = async input => {
+    const url = new URL(String(input));
+    requests.push(url);
+    const format = url.searchParams.get('filter[subtype]');
+    return json({
+      data: [{ id: format === 'manga' ? '1' : '2', type: 'manga', attributes: { canonicalTitle: 'Example', subtype: format } }],
+      links: { next: format === 'manga' ? 'https://kitsu.app/api/edge/manga?page%5Boffset%5D=12' : null },
+    });
+  };
+  const first = await getCatalog('', 'all', undefined, undefined, 'action');
+  assert.deepEqual(first.nextPage, { manga: 2, manhwa: null });
+  await getCatalog('', 'all', first.nextPage, undefined, 'action');
+  assert.equal(requests.length, 3);
+  assert.deepEqual(requests.map(url => url.searchParams.get('filter[subtype]')), ['manga', 'manhwa', 'manga']);
+  assert.equal(requests[2].searchParams.get('page[offset]'), '12');
+  for (const url of requests) {
+    assert.equal(url.searchParams.get('filter[categories]'), 'action');
+    assert.equal(url.searchParams.get('sort'), '-userCount');
+  }
+  await getCatalog(' solo ', 'manhwa', undefined, undefined, 'fantasy');
+  assert.equal(requests[3].searchParams.get('filter[text]'), 'solo');
+  assert.equal(requests[3].searchParams.get('filter[subtype]'), 'manhwa');
+  assert.equal(requests[3].searchParams.get('filter[categories]'), 'fantasy');
+  assert.equal(requests[3].searchParams.get('page[offset]'), '0');
+  assert.equal(requests[3].searchParams.has('sort'), false);
+});
+
+test('clearing a genre removes the category restriction', async () => {
+  const requests = [];
+  globalThis.fetch = async input => {
+    requests.push(new URL(String(input)));
+    return json({ data: [], links: { next: null } });
+  };
+  const filtered = await getCatalog('', 'manga', undefined, undefined, 'slice-of-life');
+  assert.equal(filtered.hasNextPage, false);
+  assert.equal(filtered.nextPage, undefined);
+  await getCatalog('', 'manga');
+  assert.equal(requests[0].searchParams.get('filter[categories]'), 'slice-of-life');
+  assert.equal(requests[1].searchParams.has('filter[categories]'), false);
+  assert.equal(requests[1].searchParams.get('page[offset]'), '0');
+});

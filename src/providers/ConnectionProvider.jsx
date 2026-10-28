@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { CONNECTION_STORAGE_KEY, normalizeBaseUrl } from "../config.js";
+import { CONNECTION_STORAGE_KEY, getTrackerConnection, normalizeBaseUrl } from "../config.js";
 
 const Context = createContext(null);
 export function ConnectionProvider({ children }) {
   const [baseUrl, setUrl] = useState('');
+  const [defaultUrl, setDefaultUrl] = useState('');
   const [isReady, setReady] = useState(false);
   const [storageError, setStorageError] = useState(null);
   useEffect(() => {
@@ -12,8 +13,12 @@ export function ConnectionProvider({ children }) {
     (async () => {
       try {
         const saved = await AsyncStorage.getItem(CONNECTION_STORAGE_KEY);
-        const url = normalizeBaseUrl(saved ?? process.env.EXPO_PUBLIC_TRACKER_API_URL ?? '');
-        if (alive) setUrl(url);
+        const settings = getTrackerConnection(saved, process.env.EXPO_PUBLIC_TRACKER_API_URL ?? '');
+        if (alive) {
+          setUrl(settings.baseUrl);
+          setDefaultUrl(settings.defaultUrl);
+          setStorageError(settings.configurationError);
+        }
       } catch (error) {
         if (alive) setStorageError(error instanceof Error ? error.message : 'Could not load the saved connection.');
       } finally {if (alive) setReady(true);}
@@ -27,7 +32,7 @@ export function ConnectionProvider({ children }) {
     setUrl(next);
     setStorageError(null);
   }
-  return <Context.Provider value={{ baseUrl, isReady, isConfigured: Boolean(baseUrl), setBaseUrl, storageError }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ baseUrl, defaultUrl, isReady, isConfigured: Boolean(baseUrl), setBaseUrl, storageError }}>{children}</Context.Provider>;
 }
 export function useConnection() {
   const context = useContext(Context);

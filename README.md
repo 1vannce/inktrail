@@ -1,12 +1,14 @@
 # InkTrail
 
-A Manga and Manhwa reading tracker built with React Native, Expo SDK 57, JavaScript, Expo Router, and TanStack Query. Search the public Kitsu catalog, open a title, save it to your library, track chapter progress and reading status, and organize titles into custom lists.
+A Manga and Manhwa reading tracker built with React Native, Expo SDK 58, JavaScript, Expo Router, and TanStack Query. Search the public Kitsu catalog, open a title, save it to your library, track chapter progress and reading status, and organize titles into custom lists.
 
-All saved entries and lists are read and written through an external REST API using Fetch. There is no local backend to run. This workspace includes a configured, public Beeceptor demo endpoint so you can try saving immediately. MockAPI is recommended when you want your own free project with more room than the small Beeceptor demo. [API setup and demo limits](docs/API_SETUP.md).
+All saved entries and lists are read and written through an external REST API using Fetch. There is no local backend to run. Configure an account-owned MockAPI project with `entries` and `lists` resources for persistent tracker storage. The old public Beeceptor demo is being retired ahead of its expected November 10, 2026 expiry. [API setup and migration checklist](docs/API_SETUP.md).
 
 ## Run the delivered project
 
-Use Node.js **22.13 or later** and npm. This project follows the [versioned Expo SDK 57 documentation](https://docs.expo.dev/versions/v57.0.0/), which targets React Native 0.86 and React 19.2.3. Exact installed versions are recorded in `package-lock.json`.
+Use Node.js **22.13+ (22.x), 24.3+ (24.x), or 26+** and npm. This project uses Expo SDK 58 with React Native 0.88 and React 19.3.0. Exact installed versions are recorded in `package-lock.json`.
+
+Before installing or updating dependencies, stop this project's running Expo server with Ctrl+C. On Windows, a running server can lock native files and cause `npm ci` to fail after partially removing `node_modules`.
 
 From the original current directory, enter the new, independent app folder:
 
@@ -23,19 +25,21 @@ npm run android
 npm run web
 ```
 
+After updating dependencies, stop the previous Expo server and run `npx expo start --clear`, then scan the new QR code with an Expo Go client that supports SDK 58. If Metro reports a missing `react-native/asset-registry` module, run `npx expo install --check`: Expo and React Native must use compatible SDK versions. Use `npx expo install --fix` to align them rather than upgrading only `expo`.
+
 On macOS with an iOS simulator installed:
 
 ```sh
 npm run ios
 ```
 
-The project uses the Expo managed workflow. Native `android/` and `ios/` project directories are not needed to run it. Catalog browsing works immediately with an internet connection. The local `.env` connects the delivered workspace to the demo tracker; a fresh copy without that file can connect through the Connection screen.
+The project uses the Expo managed workflow. Native `android/` and `ios/` project directories are not needed to run it. Catalog browsing works immediately with an internet connection. Configure a tracker through the Connection screen or the environment setting below. The historical Beeceptor URL is ignored as a build default; existing saved connections remain available for migration.
 
 ## Deploy the web app to Vercel
 
 Import this GitHub repository into Vercel, keep the root directory at the repository root, and select **Other** as the framework preset. The included `vercel.json` sets `npm ci` as the install command, `npm run export:web` as the build command, and `dist` as the output directory. Its rewrite lets Expo Router handle direct links and page refreshes, including `/library`, `/connection`, and `/title/123`.
 
-Use Node.js 22.13 or later. To connect the deployed app to a tracker by default, add `EXPO_PUBLIC_TRACKER_API_URL` in the Vercel project's environment variables before deploying. This is a public HTTPS API base URL, without `/entries` or `/lists`. Without it, readers can configure their endpoint from the app's Connection screen. Changes to this environment variable require a new deployment because Expo embeds it during the build. The local `.env` is excluded from Git and CLI uploads.
+Use a supported Node.js version listed above. To connect the deployed app to a tracker by default, add `EXPO_PUBLIC_TRACKER_API_URL` in the Vercel project's environment variables before deploying. This is a public HTTPS API base URL, without `/entries` or `/lists`. Without it, readers can configure their endpoint from the app's Connection screen. Changes to this environment variable require a new deployment because Expo embeds it during the build. The local `.env` is excluded from Git and CLI uploads.
 
 Alternatively, deploy from this directory with Vercel CLI:
 
@@ -44,18 +48,15 @@ npx vercel login
 npx vercel --prod
 ```
 
-## Included demo tracker
+## Move off the public demo before November 10
 
-A dedicated anonymous Beeceptor endpoint was created on October 11, 2026, with both CRUD routes configured:
+The original anonymous Beeceptor endpoint was created on October 11, 2026. Its documented 30-day unclaimed retention puts expected cleanup around **November 10, 2026**; its current claim status and exact deletion time have not been verified. [Provider retention policy](https://beeceptor.com/pricing/).
 
-- API base: [ca491042a4a2e9cd0092.free.beeceptor.com](https://ca491042a4a2e9cd0092.free.beeceptor.com)
-- Dashboard: [Inspect requests and manage routes](https://app.beeceptor.com/console/ca491042a4a2e9cd0092)
-
-The local `.env` points to this endpoint. It is public, holds at most **10 total entries and lists**, and allows **50 requests per day**. Older records can be purged when full, and an unclaimed endpoint lasts **30 days from creation**. Use sample reading data. See the provider's [storage behavior](https://beeceptor.com/docs/crud-api/) and [plan limits](https://beeceptor.com/pricing/).
+Migration preparation leaves existing `.env` files and credentials unchanged. Supply your actual MockAPI **HTTPS project base URL**, including its configured prefix but excluding `/entries` and `/lists`. The blank setting in `.env.example` is the configuration placeholder. Follow the [backup and cutover steps](docs/API_SETUP.md#migrate-the-existing-library) before changing connections: switching URLs does not copy records.
 
 ## Connect your own tracker
 
-1. Follow [API_SETUP.md](docs/API_SETUP.md) to create the two resources, `entries` and `lists`, in MockAPI or Beeceptor.
+1. Follow [API_SETUP.md](docs/API_SETUP.md) to create the two top-level resources, `entries` and `lists`, in your MockAPI project.
 2. Open the app's **Connection** screen and paste your provider's HTTPS base URL.
 3. Connect. The app checks GET `/entries` and GET `/lists` before saving the URL preference.
 4. Search for a title, open its details, save it, and inspect the new record in your API dashboard.
@@ -72,7 +73,7 @@ Edit `.env` using the exact base URL from your provider:
 EXPO_PUBLIC_TRACKER_API_URL=https://YOUR_PROJECT.mockapi.io/api/v1
 ```
 
-Then stop the running Expo process and run `npx expo start --clear` to refresh Metro's transformed environment values. The in-app saved connection takes precedence over this environment value. Disconnecting saves an empty connection; reconnect through the screen to select an endpoint again.
+Replace the entire example with the exact dashboard URL; the app rejects the literal placeholder. Then stop the running Expo process and run `npx expo start --clear` to refresh Metro's transformed environment values. For Vercel, update the same public variable and redeploy. The in-app saved connection takes precedence over this environment value, including an explicit disconnect. On each existing device/browser, select **Use configured default URL** (when available), then **Test & connect**, or paste the new URL manually. Both collections must pass validation before the saved preference changes.
 
 Only the endpoint preference is persisted on the device. Entries and lists come from the API, with temporary in-memory caching for the current session. The app never substitutes local saved records when the API is unavailable.
 
@@ -152,8 +153,8 @@ Settled mutations invalidate the affected remote queries, including failures tha
 
 Route: [app/(tabs)/index.jsx](app/%28tabs%29/index.jsx). Complete component: [HomeScreen.jsx](src/screens/HomeScreen.jsx).
 
-1. Keep the search text and All/Manga/Manhwa filter in component state.
-2. Debounce input before passing it to `useCatalog`.
+1. Keep the search text, All/Manga/Manhwa filter, and selected genre in component state. The Genres button shows or hides the genre navigation; All genres removes only the genre restriction, while Clear filters resets search, format, and genre.
+2. Debounce input before passing it to `useCatalog`. Genre buttons use Kitsu's `filter[categories]` with category slugs. Search, format, and genre share a query key so changing any filter starts at the first page; subsequent pages retain all active filters.
 3. Display popular catalog titles before a search and matching results afterward.
 4. Render covers and metadata in a responsive catalog grid. Expose loading, empty-result, pagination, and retry states.
 5. Navigate to `/title/{id}` when a title is selected. Keep IDs in the route and retrieve current details through the catalog API.
@@ -187,7 +188,7 @@ List deletion spans multiple REST calls. It is not atomic on these mock services
 
 [app/_layout.jsx](app/_layout.jsx) wraps the stack with providers. The tab layout keeps discovery and library access available, while details and connection have their own stack routes. [theme.js](src/theme.js) and [ui.jsx](src/components/ui.jsx) keep colors, spacing, typography, buttons, inputs, cards, and feedback consistent across screens.
 
-The UI uses safe areas, scrollable content, visible pending/error states, and descriptive action labels. The catalog and library are separate screens so a slow catalog response does not prevent access to the tracker controls.
+The UI uses a black-and-white palette with neutral grays, locally bundled Geist Sans typography, simple borders, and a responsive cover grid. The type hierarchy and controls take cues from the [Geist design system](https://vercel.com/geist/typography); book covers retain their original artwork. Font files and their SIL Open Font License are in `assets/fonts/`, loaded through the existing `expo-font` dependency. Discover, Library, title details, Connection, and the editing dialogs share the same controls. Safe areas, scrollable content, visible pending/error states, and descriptive action labels remain in place. The catalog and library are separate screens so a slow catalog response does not prevent access to the tracker controls.
 
 ## Checks
 
@@ -206,12 +207,12 @@ The automated API tests use controlled Fetch responses and do not touch the publ
 
 ## Recreate the dependency setup
 
-The delivered project is ready to use with `npm ci`. For a separate fresh implementation, create an Expo JavaScript project with [create-expo-app](https://docs.expo.dev/more/create-expo/), then target SDK 57 and install compatible managed libraries:
+The delivered project is ready to use with `npm ci`. For a separate fresh implementation, create an Expo JavaScript project with [create-expo-app](https://docs.expo.dev/more/create-expo/), then target SDK 58 and install compatible managed libraries:
 
 ```powershell
 npx create-expo-app@latest inktrail-fresh --template blank
 cd inktrail-fresh
-npm install expo@~57.0.27
+npm install expo@~58.0.20
 npx expo install --fix
 npx expo install expo-router expo-constants expo-font expo-linking expo-status-bar react-native-safe-area-context react-native-screens react-native-gesture-handler react-native-reanimated react-native-worklets @react-native-async-storage/async-storage @expo/vector-icons react-dom react-native-web
 npm install @tanstack/react-query@^5

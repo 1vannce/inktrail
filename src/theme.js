@@ -1,6 +1,10 @@
-import { Platform } from 'react-native';
 export const colors = {
-  background: '#F7F7F0', paper: '#FFFFFF', ink: '#20372D', muted: '#6D786E',
-  green: '#234C3A', greenLight: '#E6EDE2', coral: '#EF805E', border: '#DFE3D8', danger: '#B64336'
+  background: '#FFFFFF', paper: '#FFFFFF', ink: '#171717', muted: '#666666',
+  accent: '#171717', surface: '#F5F5F5', border: '#E5E5E5', danger: '#171717'
 };
-export const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
+
+// Separate static faces render consistently on web, Android, and iOS.
+export const fonts = {
+  regular: 'Geist-Regular', medium: 'Geist-Medium',
+  semibold: 'Geist-SemiBold', bold: 'Geist-Bold'
+};

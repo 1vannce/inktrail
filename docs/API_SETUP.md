@@ -1,20 +1,24 @@
 # Connect the external tracker API
 
-InkTrail reads catalog data from Kitsu. Your reading entries and custom lists live in a separate external REST service. The app has no backend server, database, or local entry store. It works with MockAPI or Beeceptor through the same REST contract.
+InkTrail reads catalog data from Kitsu. Your reading entries and custom lists live in a separate external REST service. The app has no backend server, database, or local entry store. Use an account-owned MockAPI project for persistent CRUD storage. The adapter also supports the old Beeceptor contract while you migrate.
 
-## Included workspace connection
+## Migration status and required configuration
 
-The delivered workspace has a local `.env` configured with the dedicated public demo endpoint:
+The existing local `.env` still selects the historical public Beeceptor demo. It has been left unchanged to preserve local configuration. No replacement MockAPI endpoint has been provisioned or live-tested. The required value is:
 
 ```dotenv
-EXPO_PUBLIC_TRACKER_API_URL=https://ca491042a4a2e9cd0092.free.beeceptor.com
+# Paste the actual HTTPS project base URL from your MockAPI dashboard.
+# Include its prefix (such as /api/v1); exclude /entries and /lists.
+EXPO_PUBLIC_TRACKER_API_URL=
 ```
 
-Its [Beeceptor dashboard](https://app.beeceptor.com/console/ca491042a4a2e9cd0092) has stateful CRUD rules for `/entries` and `/lists`. Both collections were verified to return `[]` after creation on October 11, 2026. No account or paid plan was created. This endpoint has the free limits described below, including ten total objects and 30-day unclaimed retention. `.env` is ignored by Git; use this URL in Connection or create a new endpoint if you copy the source without the local environment file.
+The original demo was created on **October 11, 2026**. Beeceptor documents removal of unclaimed endpoints after 30 days, so plan to finish migration **before November 10, 2026**. This is an estimated cleanup date, not a live confirmation of claim status or deletion time. [Retention policy](https://beeceptor.com/pricing/) checked October 28, 2026.
+
+The app now ignores that specific historical demo URL as an automatic build default. A previously saved connection is preserved and shows a migration notice on the Connection screen. No data is moved or deleted automatically. A new installation with only the old environment URL can browse the catalog, but must connect a tracker before saving.
 
 ## Recommended for your own tracker: MockAPI
 
-MockAPI's free plan provides one project with two resources, enough for `entries` and `lists`. It requires a free account and one-time resource configuration; it is not a preconfigured, anonymous shared database. [Plan details](https://mockapi.io/).
+MockAPI requires an account and one-time resource configuration. Choose a plan that supports one project with two resources, `entries` and `lists`; check the current [plan details](https://mockapi.io/) in your dashboard. Account ownership avoids relying on an anonymous Beeceptor endpoint's retention window, but does not guarantee indefinite storage or production security. Keep your own backup.
 
 1. Sign in at [MockAPI](https://mockapi.io/) and create a project named `InkTrail`.
 2. Create two top-level resources named exactly `entries` and `lists`. Do not nest one under the other.
@@ -52,16 +56,21 @@ Choose Number for numeric fields and String for text fields in the schema editor
 
 `src/api/tracker.js` validates both models at runtime; `src/types.js` defines the allowed reading statuses. The app expects each collection response to be a raw JSON array (`[]` when empty), and each successful create/update response to be a JSON object containing its `id`.
 
-## Alternative: Beeceptor without signup
+## Migrate the existing library
 
-1. Open [Beeceptor's CRUD API creator](https://beeceptor.com/crud-api/) and create a CRUD route with base path `/entries`.
-2. On the new endpoint's dashboard, open **Mock Rules**, choose **Create New CRUD**, and add `/lists`. Keep the identifier field as `id` for both routes. Use actual CRUD rules so writes persist; static mock responses do not implement a tracker.
-3. Copy the exact HTTPS endpoint URL shown by Beeceptor. Hostname formats vary, so do not construct a domain from an example. Exclude `/entries` and `/lists` from the URL entered in the app.
-4. Connect in InkTrail. Both collection GET requests should return arrays. Give CRUD rules priority over any broad response rules that match the same paths.
+Changing the URL selects a different library; it does **not** transfer records. Complete these steps before the old service expires:
 
-Beeceptor stores submitted JSON and provides GET, POST, PUT, PATCH, and DELETE. Free storage is limited to **10 objects across all collections**; exceeding the limit removes older records. Use it for a small demonstration. [CRUD documentation](https://beeceptor.com/docs/crud-api/).
+1. Pause edits on all clients using the old endpoint. Save the raw JSON from GET `/entries` and GET `/lists` as separate backup files outside the repository. Keep both even if one is empty. Check for successful HTTP responses and JSON arrays; an error response is not a backup. The historical source base URL is `https://ca491042a4a2e9cd0092.free.beeceptor.com`. If it has expired, recover from a previous backup; the app has no durable local copy.
+2. Create the empty MockAPI resources using the schemas above. Leave response templates at their standard shapes: arrays for collection GETs and objects for POST/PUT. Do not generate random records.
+3. Recreate each list with POST `/lists`, sending its `name` and original `createdAt`, **without its old `id`**. Record a mapping of each old list ID to the new string ID returned by MockAPI.
+4. Recreate each entry with POST `/entries`, omitting its old `id`. Keep all other fields and timestamps, but replace a non-null `listId` using the mapping from step 3. Preserve actual JSON numbers and `null`. If a referenced list is missing from the backup, resolve it explicitly before importing; do not silently discard its membership.
+5. Read both destination collections back. Compare counts and every business field with the backup, accounting for new record IDs and mapped list IDs. Confirm no duplicated `mangaId`, and every non-null `listId` points to an imported list. If a write times out, inspect the destination before retrying: blindly repeating POST can create duplicates. Keep the backup and old service untouched if import is incomplete.
+6. Set the new base URL locally and in the deployment environment as described below. Rebuild/redeploy, then switch each existing client through **Connection**. Select **Use configured default URL**, then **Test & connect**, or paste the URL manually. Selecting the default only fills the input; the app saves it after both collection checks pass.
+7. Reload and confirm the migrated titles, progress, statuses, and list memberships. Use a separate disposable title/list to perform the CRUD checks under **Manual verification**, including null chapter totals and unfiled entries. Only remove those disposable records after testing. Retain the backup after cutover.
 
-The free plan currently allows **50 requests per endpoint per day**. Unclaimed endpoints expire 30 days after creation; claiming extends retention to 90 days from creation. Connecting, refreshing, mutations, and deleting a list with multiple entries all consume requests. [Pricing and retention](https://beeceptor.com/pricing/).
+If you deliberately want an empty tracker, still export the old collections first, then skip importing. For rollback while Beeceptor remains available, paste the old URL and **Test & connect**; changes made on MockAPI will not appear there. Avoid writing to both trackers after cutover.
+
+Beeceptor's public free tier currently allows 50 requests per endpoint per day and ten small CRUD objects; old records can be removed when full. A backup can only preserve records still present. [Plan limits](https://beeceptor.com/pricing/) and [storage behavior](https://beeceptor.com/docs/crud-api/).
 
 ## Configure the app
 
@@ -83,13 +92,17 @@ Edit `.env`:
 EXPO_PUBLIC_TRACKER_API_URL=https://YOUR_PROJECT.mockapi.io/api/v1
 ```
 
-Replace the entire example URL with the one from your dashboard. Stop the running Expo process and restart with a cleared Metro cache after changing the environment, so transformed environment values are refreshed:
+Replace the entire example URL with the one from your dashboard. The literal `YOUR_PROJECT` URL is rejected; the blank `.env.example` setting is intentional. Edit only `EXPO_PUBLIC_TRACKER_API_URL` in an existing `.env`; do not replace the file or any other credentials. Stop the running Expo process and restart with a cleared Metro cache after changing the environment, so transformed environment values are refreshed:
 
 ```powershell
 npx expo start --clear
 ```
 
-`EXPO_PUBLIC_` values are included in the client bundle. They are configuration, not secret storage. Do not place private API keys, passwords, or access tokens here. The app's saved connection can be changed from the Connection screen.
+For Vercel, set `EXPO_PUBLIC_TRACKER_API_URL` to the same base URL in the intended deployment environment, then create a new deployment. Changing a hosted environment variable alone does not update an already-built Expo bundle. Local `.env` files are excluded from Git and CLI uploads.
+
+Saved device/browser preferences take precedence over the build setting, including an empty value saved by **Disconnect**. Existing users must select the new default or paste the URL and connect; the app does not silently switch their library. A malformed default reports a configuration error without replacing a valid saved connection.
+
+`EXPO_PUBLIC_` values are included in the client bundle. They are configuration, not secret storage. Supply only the public API base URL, never a dashboard URL, private API key, password, access token, query string, or URL with embedded credentials. No MockAPI account credentials are needed by this app.
 
 ## REST contract
 

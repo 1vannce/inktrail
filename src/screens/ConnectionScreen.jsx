@@ -5,10 +5,10 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { createTrackerApi } from "../api/tracker.js";
 import { getErrorMessage } from "../api/http.js";
-import { normalizeBaseUrl } from "../config.js";
+import { isLegacyDemoUrl, normalizeBaseUrl } from "../config.js";
 import { useConnection } from "../providers/ConnectionProvider.jsx";
 import { Button, IconButton, Notice, PageHeader } from "../components/ui.jsx";
-import { colors } from "../theme.js";
+import { colors, fonts } from "../theme.js";
 
 export default function ConnectionScreen() {
   const connection = useConnection();
@@ -38,15 +38,19 @@ export default function ConnectionScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.top}><IconButton name="arrow-back" label="Go back" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} />
-        <Text style={styles.brand}>YOUR READING SPACE</Text><Ionicons name="cloud-outline" size={23} color={colors.green} /></View>
-      <PageHeader eyebrow="A HOME FOR YOUR LIBRARY" title="Connect your shelf." subtitle="Discover titles freely. Connect a dedicated tracker endpoint to keep your reading progress across sessions." />
+        <Text style={styles.brand}>inktrail / settings</Text><Ionicons name="cloud-outline" size={23} color={colors.accent} /></View>
+      <PageHeader title="Tracker connection" subtitle="Discover titles freely. Connect a dedicated tracker endpoint to keep your reading progress across sessions." />
       <View style={styles.card}>
-        <Text style={styles.heading}>Tracker connection</Text>
-        <Text style={styles.body}>Use the base URL from your MockAPI or Beeceptor dashboard. The endpoint needs two collections: entries and lists.</Text>
+        <Text style={styles.heading}>Connection settings</Text>
+        <Text style={styles.body}>Use your MockAPI project's base URL, including its API prefix. The endpoint needs two collections: entries and lists.</Text>
+        {isLegacyDemoUrl(connection.baseUrl) ? <Notice title="Move your demo library" message="The public Beeceptor demo may expire around November 10, 2026. Back up its entries and lists, then connect your own MockAPI project. Switching URLs does not copy records." /> : null}
         <Text style={styles.label}>API BASE URL</Text>
         <TextInput accessibilityLabel="Tracker API base URL" value={value} onChangeText={(text) => {setEdited(true);setValue(text);}} editable={!busy && connection.isReady}
           placeholder="https://your-project.mockapi.io/api/v1" placeholderTextColor={colors.muted}
           autoCapitalize="none" autoCorrect={false} keyboardType="url" style={styles.input} />
+        {connection.defaultUrl && connection.defaultUrl !== value ? <Button label="Use configured default URL" variant="secondary" disabled={busy || !connection.isReady} onPress={() => {
+          setEdited(true);setValue(connection.defaultUrl);setError('');setSuccess('');
+        }} /> : null}
         {error ? <Notice title="Could not connect" message={error} tone="error" /> : null}
         {connection.storageError ? <Notice title="Connection preference" message={connection.storageError} tone="error" /> : null}
         {success ? <Notice title="Connection updated" message={success} /> : null}
@@ -55,11 +59,9 @@ export default function ConnectionScreen() {
         {success && connection.isConfigured ? <Button label="Open my library" variant="secondary" onPress={() => router.replace('/(tabs)/library')} /> : null}
       </View>
       <View style={styles.card}>
-        <Text style={styles.heading}>Choose your demo service</Text>
-        <Text style={styles.body}>MockAPI is recommended for this project. Create a free project with entries and lists resources, then copy its base URL above. The full field setup is in docs/API_SETUP.md.</Text>
+        <Text style={styles.heading}>Set up your MockAPI tracker</Text>
+        <Text style={styles.body}>Create an account-owned MockAPI project with entries and lists resources, then copy its base URL above. The field setup and migration steps are in docs/API_SETUP.md. Changing the connection does not transfer your library.</Text>
         <Button label="Open MockAPI" variant="secondary" icon="open-outline" onPress={() => void Linking.openURL('https://mockapi.io/')} />
-        <Text style={styles.body}>For an account-free trial, create a Beeceptor CRUD endpoint and add both collection routes. Its free plan holds only 10 objects total and can remove older records when full.</Text>
-        <Button label="Open Beeceptor" variant="secondary" icon="open-outline" onPress={() => void Linking.openURL('https://beeceptor.com/crud-api/')} />
       </View>
       <Text style={styles.footnote}>Public mock services are for demos. Anyone with the endpoint may access or edit its data. Use sample reading data and a dedicated endpoint; never enter secret API keys here.</Text>
     </ScrollView></KeyboardAvoidingView>
@@ -67,10 +69,10 @@ export default function ConnectionScreen() {
 }
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, content: { padding: 24, gap: 26, width: '100%', maxWidth: 680, alignSelf: 'center', paddingBottom: 50 },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, brand: { fontSize: 10, letterSpacing: 2, fontWeight: '800', color: colors.green },
-  card: { backgroundColor: colors.paper, padding: 22, borderRadius: 22, borderWidth: 1, borderColor: colors.border, gap: 16 },
-  heading: { fontSize: 19, fontWeight: '700', color: colors.ink }, body: { fontSize: 14, lineHeight: 23, color: colors.muted },
-  label: { fontSize: 10, letterSpacing: 1.5, color: colors.green, fontWeight: '800' },
-  input: { backgroundColor: colors.background, padding: 15, minHeight: 50, borderRadius: 12, borderColor: colors.border, borderWidth: 1, fontSize: 14, color: colors.ink },
-  footnote: { color: colors.muted, fontSize: 12, lineHeight: 20 }
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, brand: { fontSize: 13, fontFamily: fonts.medium, color: colors.muted },
+  card: { backgroundColor: colors.paper, padding: 22, borderRadius: 6, borderWidth: 1, borderColor: colors.border, gap: 16 },
+  heading: { fontSize: 19, fontFamily: fonts.bold, color: colors.ink }, body: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 23, color: colors.muted },
+  label: { fontSize: 11, letterSpacing: 0.6, color: colors.muted, fontFamily: fonts.semibold },
+  input: { fontFamily: fonts.regular, backgroundColor: colors.background, padding: 15, minHeight: 50, borderRadius: 6, borderColor: colors.border, borderWidth: 1, fontSize: 16, color: colors.ink },
+  footnote: { fontFamily: fonts.regular, color: colors.muted, fontSize: 12, lineHeight: 20 }
 });

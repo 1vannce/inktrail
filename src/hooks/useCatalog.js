@@ -1,12 +1,12 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { getCatalog, getTitle } from "../api/catalog.js";
 
-export function useCatalog(query, format) {
+export function useCatalog(query, format, genre = '') {
   const search = query.trim();
   return useInfiniteQuery({
-    queryKey: ['catalog', 'kitsu', search, format],
+    queryKey: ['catalog', 'kitsu', search, format, genre],
     initialPageParam: { manga: 1, manhwa: 1 },
-    queryFn: ({ pageParam, signal }) => getCatalog(search, format, pageParam, signal),
+    queryFn: ({ pageParam, signal }) => getCatalog(search, format, pageParam, signal, genre),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

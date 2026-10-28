@@ -92,13 +92,14 @@ function searchRank(title, query) {
   return 3;
 }
 
-async function getSlice(query, format, page, signal) {
+async function getSlice(query, format, page, signal, genre) {
   const params = new URLSearchParams({
     'filter[subtype]': format, 'page[offset]': String((page - 1) * PAGE_SIZE),
     'page[limit]': String(PAGE_SIZE), include: 'categories'
   });
   if (query.trim()) params.set('filter[text]', query.trim());else
   params.set('sort', '-userCount');
+  if (genre) params.set('filter[categories]', genre);
   const raw = record(await requestJson(CATALOG_BASE_URL + '/manga?' + params, {
     signal, beforeAttempt: paceCatalog, accept: 'application/vnd.api+json'
   }), 'Catalog response');
@@ -118,11 +119,11 @@ async function getSlice(query, format, page, signal) {
 }
 
 /** Each format keeps its own page cursor so an exhausted result set is never re-requested. */
-export async function getCatalog(query, format, cursor = { manga: 1, manhwa: 1 }, signal) {
+export async function getCatalog(query, format, cursor = { manga: 1, manhwa: 1 }, signal, genre = '') {
   const formats = format === 'all' ? ['manga', 'manhwa'] : [format];
   const results = await Promise.all(formats.map(async (kind) => {
     const page = cursor[kind];
-    return { kind, page, result: page === null ? null : await getSlice(query, kind, page, signal) };
+    return { kind, page, result: page === null ? null : await getSlice(query, kind, page, signal, genre) };
   }));
   const next = { manga: null, manhwa: null };
   const combined = results.flatMap(({ kind, page, result }) => {
