@@ -3,23 +3,23 @@ import { KeyboardAvoidingView, Platform, Linking, ScrollView, StyleSheet, Text, 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { createTrackerApi } from '../api/tracker';
-import { getErrorMessage } from '../api/http';
-import { normalizeBaseUrl } from '../config';
-import { useConnection } from '../providers/ConnectionProvider';
-import { Button, IconButton, Notice, PageHeader } from '../components/ui';
-import { colors } from '../theme';
+import { createTrackerApi } from "../api/tracker.js";
+import { getErrorMessage } from "../api/http.js";
+import { normalizeBaseUrl } from "../config.js";
+import { useConnection } from "../providers/ConnectionProvider.jsx";
+import { Button, IconButton, Notice, PageHeader } from "../components/ui.jsx";
+import { colors } from "../theme.js";
 
 export default function ConnectionScreen() {
   const connection = useConnection();
   const [value, setValue] = useState(connection.baseUrl);
   const [edited, setEdited] = useState(false);
-  useEffect(() => { if (connection.isReady && !edited) setValue(connection.baseUrl); }, [connection.baseUrl, connection.isReady, edited]);
+  useEffect(() => {if (connection.isReady && !edited) setValue(connection.baseUrl);}, [connection.baseUrl, connection.isReady, edited]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   async function connect() {
-    setError(''); setSuccess(''); setBusy(true);
+    setError('');setSuccess('');setBusy(true);
     try {
       const baseUrl = normalizeBaseUrl(value);
       if (!baseUrl) throw new Error('Enter your tracker endpoint first.');
@@ -27,12 +27,12 @@ export default function ConnectionScreen() {
       await Promise.all([api.listEntries(), api.listLists()]);
       await connection.setBaseUrl(baseUrl);
       setSuccess('Connected. Your reading library is ready.');
-    } catch (cause) { setError(getErrorMessage(cause)); } finally { setBusy(false); }
+    } catch (cause) {setError(getErrorMessage(cause));} finally {setBusy(false);}
   }
   async function disconnect() {
-    setBusy(true); setError(''); setSuccess('');
-    try { await connection.setBaseUrl(''); setValue(''); setSuccess('Disconnected. Your saved titles remain on the service.'); }
-    catch (cause) { setError(getErrorMessage(cause)); } finally { setBusy(false); }
+    setBusy(true);setError('');setSuccess('');
+    try {await connection.setBaseUrl('');setValue('');setSuccess('Disconnected. Your saved titles remain on the service.');}
+    catch (cause) {setError(getErrorMessage(cause));} finally {setBusy(false);}
   }
   return <SafeAreaView style={styles.safe}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -44,7 +44,7 @@ export default function ConnectionScreen() {
         <Text style={styles.heading}>Tracker connection</Text>
         <Text style={styles.body}>Use the base URL from your MockAPI or Beeceptor dashboard. The endpoint needs two collections: entries and lists.</Text>
         <Text style={styles.label}>API BASE URL</Text>
-        <TextInput accessibilityLabel="Tracker API base URL" value={value} onChangeText={text => { setEdited(true); setValue(text); }} editable={!busy && connection.isReady}
+        <TextInput accessibilityLabel="Tracker API base URL" value={value} onChangeText={(text) => {setEdited(true);setValue(text);}} editable={!busy && connection.isReady}
           placeholder="https://your-project.mockapi.io/api/v1" placeholderTextColor={colors.muted}
           autoCapitalize="none" autoCorrect={false} keyboardType="url" style={styles.input} />
         {error ? <Notice title="Could not connect" message={error} tone="error" /> : null}
@@ -72,6 +72,5 @@ const styles = StyleSheet.create({
   heading: { fontSize: 19, fontWeight: '700', color: colors.ink }, body: { fontSize: 14, lineHeight: 23, color: colors.muted },
   label: { fontSize: 10, letterSpacing: 1.5, color: colors.green, fontWeight: '800' },
   input: { backgroundColor: colors.background, padding: 15, minHeight: 50, borderRadius: 12, borderColor: colors.border, borderWidth: 1, fontSize: 14, color: colors.ink },
-  footnote: { color: colors.muted, fontSize: 12, lineHeight: 20 },
+  footnote: { color: colors.muted, fontSize: 12, lineHeight: 20 }
 });
-

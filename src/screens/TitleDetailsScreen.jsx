@@ -3,17 +3,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Chip, Cover, IconButton, Notice, SectionHeading } from '../components/ui';
-import { useTitle } from '../hooks/useCatalog';
-import { useEntries, useLists, useTrackerMutations } from '../hooks/useTracker';
-import { useConnection } from '../providers/ConnectionProvider';
-import { colors } from '../theme';
-import { READING_STATUSES, ReadingStatus, STATUS_LABELS } from '../types';
+import { Button, Chip, Cover, IconButton, Notice, SectionHeading } from "../components/ui.jsx";
+import { useTitle } from "../hooks/useCatalog.js";
+import { useEntries, useLists, useTrackerMutations } from "../hooks/useTracker.js";
+import { useConnection } from "../providers/ConnectionProvider.jsx";
+import { colors } from "../theme.js";
+import { READING_STATUSES, STATUS_LABELS } from "../types.js";
 
 const serif = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
 export default function TitleDetailsScreen() {
-  const params = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams();
   const id = Number(params.id);
   const { width } = useWindowDimensions();
   const connection = useConnection();
@@ -23,9 +23,9 @@ export default function TitleDetailsScreen() {
   const { addEntry, updateEntry } = useTrackerMutations();
   const manga = title.data;
   const entry = entries.data?.find((item) => item.mangaId === id);
-  const [status, setStatus] = useState<ReadingStatus>('planned');
+  const [status, setStatus] = useState('planned');
   const [progress, setProgress] = useState('0');
-  const [listId, setListId] = useState<string | null>(null);
+  const [listId, setListId] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [linkError, setLinkError] = useState('');
@@ -45,12 +45,12 @@ export default function TitleDetailsScreen() {
     setMessage('');
     setError('');
   }
-  function chooseStatus(next: ReadingStatus) {
+  function chooseStatus(next) {
     changed();
     setStatus(next);
     if (next === 'completed' && manga?.chapters) setProgress(String(manga.chapters));
   }
-  function stepProgress(amount: number) {
+  function stepProgress(amount) {
     changed();
     const current = Number(progress);
     const next = Math.max(0, (Number.isSafeInteger(current) ? current : 0) + amount);
@@ -71,8 +71,8 @@ export default function TitleDetailsScreen() {
     }
     try {
       const changes = { status, progress: chapter, listId };
-      if (entry) await updateEntry.mutateAsync({ entry, changes });
-      else await addEntry.mutateAsync({ manga, ...changes });
+      if (entry) await updateEntry.mutateAsync({ entry, changes });else
+      await addEntry.mutateAsync({ manga, ...changes });
       setDirty(false);
       setMessage(entry ? 'Your reading progress is saved.' : 'A new story on your shelf. Saved to your library.');
     } catch (reason) {
@@ -90,9 +90,9 @@ export default function TitleDetailsScreen() {
             <IconButton name="bookmarks-outline" label="Open my library" onPress={() => router.push('/(tabs)/library')} />
           </View>
           {title.isPending && <View style={styles.loading}><ActivityIndicator color={colors.green} size="large" /><Text style={styles.body}>Turning to the first page...</Text></View>}
-          {title.isError && <Notice title="This story could not be opened" message={title.error.message} actionLabel="Try again" onAction={() => { void title.refetch(); }} tone="error" />}
-          {manga && (
-            <>
+          {title.isError && <Notice title="This story could not be opened" message={title.error.message} actionLabel="Try again" onAction={() => {void title.refetch();}} tone="error" />}
+          {manga &&
+          <>
               <View style={styles.titleHero}>
                 <View style={styles.heroDecoration} pointerEvents="none" />
                 <View style={styles.cover}>
@@ -126,12 +126,12 @@ export default function TitleDetailsScreen() {
                   <View style={styles.trackerIcon}><Ionicons name="bookmark-outline" size={23} color={colors.green} /></View>
                   <View style={styles.flex}><Text style={styles.trackerTitle}>{entry ? 'Your reading journey' : 'Make room on your shelf'}</Text><Text style={styles.body}>Every chapter counts.</Text></View>
                 </View>
-                {!connection.isReady ? <ActivityIndicator color={colors.green} /> : !connection.isConfigured ? (
-                  <Notice title="Your shelf is almost ready" message="Connect your tracker to save this story and keep your place." actionLabel="Set up my tracker" onAction={() => router.push('/connection')} />
-                ) : (
-                  <>
+                {!connection.isReady ? <ActivityIndicator color={colors.green} /> : !connection.isConfigured ?
+              <Notice title="Your shelf is almost ready" message="Connect your tracker to save this story and keep your place." actionLabel="Set up my tracker" onAction={() => router.push('/connection')} /> :
+
+              <>
                     {entries.isPending && <View style={styles.inlineLoading}><ActivityIndicator color={colors.green} /><Text style={styles.body}>Checking your library...</Text></View>}
-                    {entries.isError && <Notice title="Your library could not be checked" message={entries.error.message} actionLabel="Retry library" onAction={() => { void entries.refetch(); }} tone="error" />}
+                    {entries.isError && <Notice title="Your library could not be checked" message={entries.error.message} actionLabel="Retry library" onAction={() => {void entries.refetch();}} tone="error" />}
                     <Text style={styles.fieldLabel}>READING STATUS</Text>
                     <View style={styles.options}>{READING_STATUSES.map((value) => <Chip key={value} label={STATUS_LABELS[value]} selected={status === value} onPress={pending ? undefined : () => chooseStatus(value)} />)}</View>
                     <View style={styles.progressHeading}><Text style={styles.fieldLabel}>CHAPTER PROGRESS</Text><Text style={styles.total}>{manga.chapters ? `of ${manga.chapters} chapters` : 'Total chapters unknown'}</Text></View>
@@ -140,39 +140,39 @@ export default function TitleDetailsScreen() {
                         <Ionicons name="remove-outline" size={23} color={colors.green} />
                       </Pressable>
                       <TextInput accessibilityLabel="Current chapter" value={progress} keyboardType="number-pad" inputMode="numeric" selectTextOnFocus editable={!pending} maxLength={7}
-                        onChangeText={(value) => { changed(); setProgress(value); }} style={styles.chapterInput} />
-                      <Pressable accessibilityRole="button" accessibilityLabel="Next chapter" disabled={pending || (manga.chapters !== null && Number(progress) >= manga.chapters)} onPress={() => stepProgress(1)} style={styles.stepButton}>
+                  onChangeText={(value) => {changed();setProgress(value);}} style={styles.chapterInput} />
+                      <Pressable accessibilityRole="button" accessibilityLabel="Next chapter" disabled={pending || manga.chapters !== null && Number(progress) >= manga.chapters} onPress={() => stepProgress(1)} style={styles.stepButton}>
                         <Ionicons name="add-outline" size={23} color={colors.green} />
                       </Pressable>
                     </View>
                     <Text style={styles.fieldLabel}>READING LIST</Text>
                     {lists.isPending && <Text style={styles.body}>Loading your lists...</Text>}
-                    {lists.isError && <Notice title="Reading lists are unavailable" message={lists.error.message} actionLabel="Retry lists" onAction={() => { void lists.refetch(); }} tone="error" />}
+                    {lists.isError && <Notice title="Reading lists are unavailable" message={lists.error.message} actionLabel="Retry lists" onAction={() => {void lists.refetch();}} tone="error" />}
                     <View style={styles.options}>
-                      <Chip label="Unfiled" selected={listId === null} onPress={pending ? undefined : () => { changed(); setListId(null); }} />
-                      {lists.data?.map((list) => <Chip key={list.id} label={list.name} selected={listId === list.id} onPress={pending ? undefined : () => { changed(); setListId(list.id); }} />)}
+                      <Chip label="Unfiled" selected={listId === null} onPress={pending ? undefined : () => {changed();setListId(null);}} />
+                      {lists.data?.map((list) => <Chip key={list.id} label={list.name} selected={listId === list.id} onPress={pending ? undefined : () => {changed();setListId(list.id);}} />)}
                     </View>
                     {lists.isSuccess && lists.data.length === 0 && <Text style={styles.hint}>Create reading lists in your library to organize your stories.</Text>}
                     {error.length > 0 && <Notice title="Your changes need a moment" message={error} tone="error" />}
                     {message.length > 0 && <Notice title="Saved to your shelf" message={message} actionLabel="Visit my library" onAction={() => router.push('/(tabs)/library')} />}
                     <Button label={entry ? 'Save progress' : 'Add to my library'} icon={entry ? 'checkmark-outline' : 'add-outline'}
-                      loading={pending} disabled={!entries.isSuccess || (Boolean(entry) && !dirty)} onPress={() => { void save(); }} />
+                loading={pending} disabled={!entries.isSuccess || Boolean(entry) && !dirty} onPress={() => {void save();}} />
                     <Text style={styles.saveHint}>{entry ? 'A little progress is still progress.' : 'One more story to look forward to.'}</Text>
                   </>
-                )}
+              }
               </View>
               {manga.url ? <Button label="View on Kitsu" variant="ghost" icon="open-outline" onPress={() => {
-                setLinkError('');
-                void Linking.openURL(manga.url).catch(() => setLinkError('The source link could not be opened.'));
-              }} /> : null}
+              setLinkError('');
+              void Linking.openURL(manga.url).catch(() => setLinkError('The source link could not be opened.'));
+            }} /> : null}
               {linkError.length > 0 && <Notice title="Unable to open the source" message={linkError} tone="error" />}
               <Text style={styles.attribution}>Title information provided by Kitsu.</Text>
             </>
-          )}
+          }
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+    </SafeAreaView>);
+
 }
 
 const styles = StyleSheet.create({
@@ -218,7 +218,5 @@ const styles = StyleSheet.create({
   chapterInput: { flex: 1, minWidth: 0, color: colors.ink, fontSize: 23, fontWeight: '600', textAlign: 'center', paddingVertical: 12 },
   hint: { fontSize: 11, color: colors.muted, lineHeight: 18, marginTop: -6 },
   saveHint: { color: colors.muted, fontSize: 11, textAlign: 'center', marginTop: -6 },
-  attribution: { color: colors.muted, fontSize: 10, textAlign: 'center', marginTop: 10, lineHeight: 17 },
+  attribution: { color: colors.muted, fontSize: 10, textAlign: 'center', marginTop: 10, lineHeight: 17 }
 });
-
-

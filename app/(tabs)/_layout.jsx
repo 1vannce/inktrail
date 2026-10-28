@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../src/theme';
+import { colors } from "../../src/theme.js";
 export default function TabLayout() {
   const { bottom } = useSafeAreaInsets();
   return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.green, tabBarInactiveTintColor: colors.muted,
@@ -11,4 +11,3 @@ export default function TabLayout() {
     <Tabs.Screen name="library" options={{ title: 'My library', tabBarIcon: ({ color, size }) => <Ionicons name="bookmarks-outline" color={color} size={size} /> }} />
   </Tabs>;
 }
-

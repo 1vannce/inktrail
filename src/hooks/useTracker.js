@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createTrackerApi } from '../api/tracker';
-import { useConnection } from '../providers/ConnectionProvider';
+import { createTrackerApi } from "../api/tracker.js";
+import { useConnection } from "../providers/ConnectionProvider.jsx";
 
 function useTrackerApi() {
   const connection = useConnection();
@@ -17,7 +17,7 @@ export function useEntries() {
     enabled: isReady && isConfigured,
     staleTime: 30_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false
   });
 }
 
@@ -29,7 +29,7 @@ export function useLists() {
     enabled: isReady && isConfigured,
     staleTime: 30_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false
   });
 }
 
@@ -39,7 +39,7 @@ export function useTrackerMutations() {
   const queryClient = useQueryClient();
   const refreshEntries = () => queryClient.invalidateQueries({ queryKey: ['entries', baseUrl] });
   const refreshLists = () => queryClient.invalidateQueries({ queryKey: ['lists', baseUrl] });
-  const refreshAll = async () => { await Promise.all([refreshEntries(), refreshLists()]); };
+  const refreshAll = async () => {await Promise.all([refreshEntries(), refreshLists()]);};
 
   // Invalidate after failures too: a timeout or interrupted multi-step delete may have committed remotely.
   const addEntry = useMutation({ mutationFn: api.addEntry, onSettled: refreshEntries, retry: false });
@@ -51,4 +51,3 @@ export function useTrackerMutations() {
 
   return { addEntry, updateEntry, removeEntry, addList, renameList, removeList };
 }
-

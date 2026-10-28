@@ -3,21 +3,19 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Chip, Cover, IconButton, Notice, SectionHeading } from '../components/ui';
-import { useCatalog } from '../hooks/useCatalog';
-import { colors } from '../theme';
-import { CatalogFormat, Manga } from '../types';
+import { Button, Chip, Cover, IconButton, Notice, SectionHeading } from "../components/ui.jsx";
+import { useCatalog } from "../hooks/useCatalog.js";
+import { colors } from "../theme.js";
 
 const serif = Platform.OS === 'ios' ? 'Georgia' : 'serif';
-const FILTERS: { value: CatalogFormat; label: string }[] = [
-  { value: 'all', label: 'All stories' }, { value: 'manga', label: 'Manga' }, { value: 'manhwa', label: 'Manhwa' },
-];
+const FILTERS = [
+{ value: 'all', label: 'All stories' }, { value: 'manga', label: 'Manga' }, { value: 'manhwa', label: 'Manhwa' }];
 
-function FeaturedTitle({ manga, compact }: { manga: Manga; compact: boolean }) {
+function FeaturedTitle({ manga, compact }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Explore ${manga.title}`}
-      onPress={() => router.push(`/title/${manga.id}`)}
-      style={({ pressed }) => [styles.feature, compact && styles.featureCompact, pressed && styles.pressed]}>
+    onPress={() => router.push(`/title/${manga.id}`)}
+    style={({ pressed }) => [styles.feature, compact && styles.featureCompact, pressed && styles.pressed]}>
       <View style={styles.featureCopy}>
         <View style={styles.featureKicker}>
           <Ionicons name="sparkles-outline" size={15} color="#EDBF85" />
@@ -34,15 +32,15 @@ function FeaturedTitle({ manga, compact }: { manga: Manga; compact: boolean }) {
         <Cover uri={manga.imageUrl} title={manga.title} width={compact ? 106 : 146} height={compact ? 155 : 208} />
       </View>
       <View pointerEvents="none" style={styles.featureCircle} />
-    </Pressable>
-  );
+    </Pressable>);
+
 }
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [format, setFormat] = useState<CatalogFormat>('all');
+  const [format, setFormat] = useState('all');
   const catalog = useCatalog(debouncedQuery, format);
   const columns = width >= 1000 ? 4 : width >= 700 ? 3 : 2;
   const gutter = width < 400 ? 20 : 28;
@@ -54,7 +52,7 @@ export default function HomeScreen() {
   }, [query]);
 
   const titles = useMemo(() => {
-    const seen = new Set<number>();
+    const seen = new Set();
     return (catalog.data?.pages.flatMap((page) => page.items) ?? []).filter((manga) => {
       if (seen.has(manga.id)) return false;
       seen.add(manga.id);
@@ -67,10 +65,10 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList key={columns} data={gridTitles} numColumns={columns} keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={[styles.content, { paddingHorizontal: gutter }]} columnWrapperStyle={styles.gridRow}
-        keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <View>
+      contentContainerStyle={[styles.content, { paddingHorizontal: gutter }]} columnWrapperStyle={styles.gridRow}
+      keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}
+      ListHeaderComponent={
+      <View>
             <View style={styles.topbar}>
               <View style={styles.brand}>
                 <View style={styles.brandMark}><Ionicons name="book-outline" size={23} color={colors.paper} /></View>
@@ -86,14 +84,14 @@ export default function HomeScreen() {
             <View style={styles.searchBox}>
               <Ionicons name="search-outline" size={21} color={colors.muted} />
               <TextInput accessibilityLabel="Search manga and manhwa" placeholder="Search titles, find your next favorite..."
-                placeholderTextColor={colors.muted} value={query} onChangeText={setQuery} returnKeyType="search"
-                autoCapitalize="none" autoCorrect={false} onSubmitEditing={() => setDebouncedQuery(query.trim())} style={styles.searchInput} />
-              {query.length > 0 && (
-                <Pressable accessibilityRole="button" accessibilityLabel="Clear search"
-                  onPress={() => { setQuery(''); setDebouncedQuery(''); }} style={styles.clearSearch}>
+          placeholderTextColor={colors.muted} value={query} onChangeText={setQuery} returnKeyType="search"
+          autoCapitalize="none" autoCorrect={false} onSubmitEditing={() => setDebouncedQuery(query.trim())} style={styles.searchInput} />
+              {query.length > 0 &&
+          <Pressable accessibilityRole="button" accessibilityLabel="Clear search"
+          onPress={() => {setQuery('');setDebouncedQuery('');}} style={styles.clearSearch}>
                   <Ionicons name="close-circle" size={20} color={colors.muted} />
                 </Pressable>
-              )}
+          }
             </View>
             <View style={styles.filters}>
               {FILTERS.map((filter) => <Chip key={filter.value} label={filter.label} selected={format === filter.value} onPress={() => setFormat(filter.value)} />)}
@@ -101,21 +99,21 @@ export default function HomeScreen() {
             {featured && <FeaturedTitle manga={featured} compact={width < 520} />}
             <View style={styles.catalogHeading}>
               <View style={{ flex: 1 }}><SectionHeading title={isSearching ? 'Search results' : 'Discover something good'}
-                subtitle={isSearching ? `Stories matching “${debouncedQuery}”` : 'Great stories. One chapter at a time.'} /></View>
+            subtitle={isSearching ? `Stories matching “${debouncedQuery}”` : 'Great stories. One chapter at a time.'} /></View>
               {catalog.isFetching && !catalog.isPending && <ActivityIndicator accessibilityLabel="Refreshing catalog" color={colors.green} />}
             </View>
-            {catalog.isError && (
-              <View style={styles.notice}>
-                <Notice title="The catalog needs a moment" message={catalog.error.message} actionLabel="Try again" onAction={() => { void catalog.refetch(); }} tone="error" />
+            {catalog.isError &&
+        <View style={styles.notice}>
+                <Notice title="The catalog needs a moment" message={catalog.error.message} actionLabel="Try again" onAction={() => {void catalog.refetch();}} tone="error" />
               </View>
-            )}
-          </View>
         }
-        renderItem={({ item }) => (
-          <Pressable accessibilityRole="button"
-            accessibilityLabel={`${item.title}, ${item.type}${item.score ? `, rated ${item.score.toFixed(1)} out of 10` : ''}. View details`}
-            onPress={() => router.push(`/title/${item.id}`)}
-            style={({ pressed }) => [styles.catalogCard, { width: cardWidth }, pressed && styles.pressed]}>
+          </View>
+      }
+      renderItem={({ item }) =>
+      <Pressable accessibilityRole="button"
+      accessibilityLabel={`${item.title}, ${item.type}${item.score ? `, rated ${item.score.toFixed(1)} out of 10` : ''}. View details`}
+      onPress={() => router.push(`/title/${item.id}`)}
+      style={({ pressed }) => [styles.catalogCard, { width: cardWidth }, pressed && styles.pressed]}>
             <View style={styles.cardImage}>
               <Cover uri={item.imageUrl} title={item.title} width={cardWidth} height={Math.round(cardWidth * 1.39)} />
               {item.score !== null && <View style={styles.score}><Ionicons name="star" color="#C39131" size={11} /><Text style={styles.scoreText}>{item.score.toFixed(1)}</Text></View>}
@@ -124,29 +122,29 @@ export default function HomeScreen() {
             <Text numberOfLines={2} style={styles.cardTitle}>{item.title}</Text>
             <Text numberOfLines={1} style={styles.cardGenres}>{item.genres.slice(0, 2).join(' · ') || 'Discover this story'}</Text>
           </Pressable>
-        )}
-        ListEmptyComponent={
-          catalog.isPending ? (
-            <View style={styles.empty}><ActivityIndicator size="large" color={colors.green} /><Text style={styles.emptyText}>Opening a world of stories...</Text></View>
-          ) : !catalog.isError && !featured ? (
-            <View style={styles.empty}>
+      }
+      ListEmptyComponent={
+      catalog.isPending ?
+      <View style={styles.empty}><ActivityIndicator size="large" color={colors.green} /><Text style={styles.emptyText}>Opening a world of stories...</Text></View> :
+      !catalog.isError && !featured ?
+      <View style={styles.empty}>
               <View style={styles.emptyIcon}><Ionicons name="search-outline" size={30} color={colors.green} /></View>
               <Text style={styles.emptyTitle}>A story still to be found</Text>
               <Text style={styles.emptyText}>Try a shorter title or explore a different format.</Text>
-              <Button label="Explore all stories" variant="secondary" onPress={() => { setQuery(''); setDebouncedQuery(''); setFormat('all'); }} />
-            </View>
-          ) : null
-        }
-        ListFooterComponent={
-          <View style={styles.footer}>
-            {catalog.hasNextPage && <Button label="Discover more" variant="secondary" icon="arrow-down-outline" loading={catalog.isFetchingNextPage} onPress={() => { void catalog.fetchNextPage(); }} />}
+              <Button label="Explore all stories" variant="secondary" onPress={() => {setQuery('');setDebouncedQuery('');setFormat('all');}} />
+            </View> :
+      null
+      }
+      ListFooterComponent={
+      <View style={styles.footer}>
+            {catalog.hasNextPage && <Button label="Discover more" variant="secondary" icon="arrow-down-outline" loading={catalog.isFetchingNextPage} onPress={() => {void catalog.fetchNextPage();}} />}
             <View style={styles.footerNote}><View style={styles.footerLine} /><Ionicons name="leaf-outline" size={16} color={colors.muted} /><View style={styles.footerLine} /></View>
             <Text style={styles.footerText}>EVERY GREAT STORY LEAVES A TRAIL.</Text>
             <Text style={styles.attribution}>Catalog powered by Kitsu</Text>
           </View>
-        } />
-    </SafeAreaView>
-  );
+      } />
+    </SafeAreaView>);
+
 }
 
 const styles = StyleSheet.create({
@@ -197,7 +195,5 @@ const styles = StyleSheet.create({
   footerLine: { height: 1, width: 40, backgroundColor: colors.border },
   footerText: { fontSize: 8, letterSpacing: 1.6, color: colors.muted, fontWeight: '600' },
   attribution: { fontSize: 10, color: colors.muted, marginTop: 9 },
-  pressed: { opacity: 0.78 },
+  pressed: { opacity: 0.78 }
 });
-
-

@@ -1,13 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
-import { CONNECTION_STORAGE_KEY, normalizeBaseUrl } from '../config';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { CONNECTION_STORAGE_KEY, normalizeBaseUrl } from "../config.js";
 
-type Connection = { baseUrl: string; isReady: boolean; isConfigured: boolean; setBaseUrl: (url: string) => Promise<void>; storageError: string | null };
-const Context = createContext<Connection | null>(null);
-export function ConnectionProvider({ children }: PropsWithChildren) {
+const Context = createContext(null);
+export function ConnectionProvider({ children }) {
   const [baseUrl, setUrl] = useState('');
   const [isReady, setReady] = useState(false);
-  const [storageError, setStorageError] = useState<string | null>(null);
+  const [storageError, setStorageError] = useState(null);
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -17,11 +16,11 @@ export function ConnectionProvider({ children }: PropsWithChildren) {
         if (alive) setUrl(url);
       } catch (error) {
         if (alive) setStorageError(error instanceof Error ? error.message : 'Could not load the saved connection.');
-      } finally { if (alive) setReady(true); }
+      } finally {if (alive) setReady(true);}
     })();
-    return () => { alive = false; };
+    return () => {alive = false;};
   }, []);
-  async function setBaseUrl(value: string) {
+  async function setBaseUrl(value) {
     const next = normalizeBaseUrl(value);
     // Only this endpoint preference is stored on-device. Entries and lists stay on the API.
     await AsyncStorage.setItem(CONNECTION_STORAGE_KEY, next);
@@ -35,4 +34,3 @@ export function useConnection() {
   if (!context) throw new Error('useConnection must be inside ConnectionProvider.');
   return context;
 }
-

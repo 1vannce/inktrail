@@ -50,7 +50,7 @@ Choose Number for numeric fields and String for text fields in the schema editor
 | `name` | string | Custom reading-list name. |
 | `createdAt` | string | ISO date/time set when created. |
 
-`src/types.ts` is the source of truth for both models. The app expects each collection response to be a raw JSON array (`[]` when empty), and each successful create/update response to be a JSON object containing its `id`.
+`src/api/tracker.js` validates both models at runtime; `src/types.js` defines the allowed reading statuses. The app expects each collection response to be a raw JSON array (`[]` when empty), and each successful create/update response to be a JSON object containing its `id`.
 
 ## Alternative: Beeceptor without signup
 
