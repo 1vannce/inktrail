@@ -23,7 +23,7 @@ export function AppProviders({ children }) {
   }, []);
   if (!fontsLoaded && !fontError) {
     return <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator accessibilityLabel="Loading InkTrail" color={colors.ink} />
+      <ActivityIndicator accessibilityLabel="Loading PanelPaw" color={colors.ink} />
     </View>;
   }
   return <SafeAreaProvider><QueryClientProvider client={client}><ConnectionProvider>{children}</ConnectionProvider></QueryClientProvider></SafeAreaProvider>;

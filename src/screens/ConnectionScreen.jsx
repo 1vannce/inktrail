@@ -38,7 +38,7 @@ export default function ConnectionScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.top}><IconButton name="arrow-back" label="Go back" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} />
-        <Text style={styles.brand}>inktrail / settings</Text><Ionicons name="cloud-outline" size={23} color={colors.accent} /></View>
+        <Text style={styles.brand}>PanelPaw / settings</Text><Ionicons name="cloud-outline" size={23} color={colors.accent} /></View>
       <PageHeader title="Tracker connection" subtitle="Discover titles freely. Connect a dedicated tracker endpoint to keep your reading progress across sessions." />
       <View style={styles.card}>
         <Text style={styles.heading}>Connection settings</Text>

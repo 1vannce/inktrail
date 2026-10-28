@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "InkTrail",
-    "slug": "inktrail",
-    "scheme": "inktrail",
+    "name": "PanelPaw",
+    "slug": "panelpaw",
+    "scheme": "panelpaw",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -17,11 +17,13 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "InkTrail"
+      "name": "PanelPaw",
+      "favicon": "./assets/branding/panelpaw-icon.png"
     },
     "plugins": [
       "expo-router",
       "expo-font"
-    ]
+    ],
+    "icon": "./assets/branding/panelpaw-icon.png"
   }
 }

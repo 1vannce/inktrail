@@ -1,4 +1,4 @@
-# InkTrail
+# PanelPaw
 
 A Manga and Manhwa reading tracker built with React Native, Expo SDK 58, JavaScript, Expo Router, and TanStack Query. Search the public Kitsu catalog, open a title, save it to your library, track chapter progress and reading status, and organize titles into custom lists.
 
@@ -13,7 +13,7 @@ Before installing or updating dependencies, stop this project's running Expo ser
 From the original current directory, enter the new, independent app folder:
 
 ```powershell
-cd inktrail
+cd panelpaw
 npm ci
 npm start
 ```
@@ -80,7 +80,7 @@ Only the endpoint preference is persisted on the device. Entries and lists come 
 ## Project structure
 
 ```text
-inktrail/
+panelpaw/
 |-- app/
 |   |-- _layout.jsx                 # Providers and root stack
 |   |-- (tabs)/
@@ -192,7 +192,7 @@ The UI uses a black-and-white palette with neutral grays, locally bundled Geist 
 
 ## Checks
 
-Run these from `inktrail`:
+Run these from `panelpaw`:
 
 ```powershell
 npm test
@@ -210,8 +210,8 @@ The automated API tests use controlled Fetch responses and do not touch the publ
 The delivered project is ready to use with `npm ci`. For a separate fresh implementation, create an Expo JavaScript project with [create-expo-app](https://docs.expo.dev/more/create-expo/), then target SDK 58 and install compatible managed libraries:
 
 ```powershell
-npx create-expo-app@latest inktrail-fresh --template blank
-cd inktrail-fresh
+npx create-expo-app@latest panelpaw-fresh --template blank
+cd panelpaw-fresh
 npm install expo@~58.0.20
 npx expo install --fix
 npx expo install expo-router expo-constants expo-font expo-linking expo-status-bar react-native-safe-area-context react-native-screens react-native-gesture-handler react-native-reanimated react-native-worklets @react-native-async-storage/async-storage @expo/vector-icons react-dom react-native-web

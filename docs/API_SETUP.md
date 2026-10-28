@@ -1,6 +1,6 @@
 # Connect the external tracker API
 
-InkTrail reads catalog data from Kitsu. Your reading entries and custom lists live in a separate external REST service. The app has no backend server, database, or local entry store. Use an account-owned MockAPI project for persistent CRUD storage. The adapter also supports the old Beeceptor contract while you migrate.
+PanelPaw reads catalog data from Kitsu. Your reading entries and custom lists live in a separate external REST service. The app has no backend server, database, or local entry store. Use an account-owned MockAPI project for persistent CRUD storage. The adapter also supports the old Beeceptor contract while you migrate.
 
 ## Migration status and required configuration
 
@@ -20,11 +20,11 @@ The app now ignores that specific historical demo URL as an automatic build defa
 
 MockAPI requires an account and one-time resource configuration. Choose a plan that supports one project with two resources, `entries` and `lists`; check the current [plan details](https://mockapi.io/) in your dashboard. Account ownership avoids relying on an anonymous Beeceptor endpoint's retention window, but does not guarantee indefinite storage or production security. Keep your own backup.
 
-1. Sign in at [MockAPI](https://mockapi.io/) and create a project named `InkTrail`.
+1. Sign in at [MockAPI](https://mockapi.io/) and create a project named `PanelPaw`.
 2. Create two top-level resources named exactly `entries` and `lists`. Do not nest one under the other.
 3. Use the fields below. Keep the generated `id` field. Start both resources empty; random generated data will not match the app's model.
 4. Copy the project's HTTPS base URL from the dashboard. Include any configured prefix such as `/api/v1`, but exclude `/entries` and `/lists`.
-5. Open InkTrail's **Connection** screen, paste that base URL, then connect. The app checks both collection endpoints before saving the connection.
+5. Open PanelPaw's **Connection** screen, paste that base URL, then connect. The app checks both collection endpoints before saving the connection.
 
 The provider creates standard REST routes for each resource and accepts JSON requests. [Official MockAPI setup guide](https://github.com/mockapi-io/docs/wiki/Quick-start-guide).
 
@@ -80,7 +80,7 @@ Open **Connection**, paste the base URL, and connect. Only the URL preference is
 
 ### Through an environment file
 
-From the `inktrail` directory in PowerShell:
+From the `panelpaw` directory in PowerShell:
 
 ```powershell
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
@@ -160,7 +160,7 @@ The **All** catalog merges separately requested manga and manhwa results, retain
 
 The adapter maps numeric Kitsu IDs, titles, poster images, publication status, synopsis, and chapter totals into the app's `Manga` type. `averageRating` uses a 100-point scale and is converted to the displayed 10-point score. Unknown chapter totals remain `null`; author credits are optional and are not fetched by this adapter. The stored `mangaId` always identifies a Kitsu manga resource. Do not import IDs from another catalog into this tracker without explicitly mapping them.
 
-Public catalog reads need no app API key. InkTrail uses Kitsu only for catalog retrieval; all tracker writes go to the configured MockAPI or Beeceptor service. A shared queue spaces catalog requests about 1.05 seconds apart as a courtesy, and search is debounced. This pacing is an app choice, not a claimed Kitsu rate-limit allowance. Cancelled requests and temporary service failures are handled by the HTTP client. Retry after a displayed network or rate-limit error.
+Public catalog reads need no app API key. PanelPaw uses Kitsu only for catalog retrieval; all tracker writes go to the configured MockAPI or Beeceptor service. A shared queue spaces catalog requests about 1.05 seconds apart as a courtesy, and search is debounced. This pacing is an app choice, not a claimed Kitsu rate-limit allowance. Cancelled requests and temporary service failures are handled by the HTTP client. Retry after a displayed network or rate-limit error.
 
 ## Manual verification
 

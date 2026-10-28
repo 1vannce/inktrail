@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <title>PanelPaw cat in a comic panel</title>
+  <rect width="512" height="512" rx="112" fill="#fff"/>
+  <rect x="28" y="28" width="456" height="456" rx="88" fill="#000"/>
+  <rect x="55" y="55" width="402" height="402" rx="62" stroke="#fff" stroke-width="14"/>
+  <path d="M350 57v283M352 185h98M58 350h338" stroke="#fff" stroke-width="14"/>
+  <path d="m383 104-9 26m45-13-23 21" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M102 227c-10-37-9-96 7-114 17-6 60 27 79 49 31-9 59-9 88 1 21-24 49-56 68-54 15 17 20 74 9 115 20 24 26 51 20 76-9 40-52 62-133 62-79 0-124-20-139-57-10-25-10-53 1-78Z" fill="#fff" stroke="#000" stroke-width="12" stroke-linejoin="round"/>
+  <path d="m119 142 40 37-43 18Zm205-4-34 41 45 19Z" fill="#000"/>
+  <ellipse cx="171" cy="253" rx="20" ry="27" fill="#000"/>
+  <ellipse cx="293" cy="253" rx="20" ry="27" fill="#000"/>
+  <circle cx="177" cy="241" r="7" fill="#fff"/>
+  <circle cx="299" cy="241" r="7" fill="#fff"/>
+  <path d="M219 278q13-10 26 0l-13 12Z" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M211 299q10 13 21 0 11 13 22 0" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+  <path d="m111 267 23 7m-25 15 24 1m196-16 23-7m-22 23 24-1" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+  <path d="M123 344c0-41 63-42 65 0v15c-1 25-65 25-65 0Zm152 0c0-41 63-42 65 0v15c-1 25-65 25-65 0Z" fill="#fff" stroke="#000" stroke-width="9"/>
+  <path d="M145 347v14m18-14v16m134-16v14m18-14v16" stroke="#000" stroke-width="6" stroke-linecap="round"/>
+  <path d="M354 450c23-31 18-57 34-75 16-18 41-14 67-42-8 51-44 97-101 117Z" fill="#fff"/>
+</svg>

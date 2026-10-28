@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Chip, Cover, IconButton, Notice } from '../components/ui.jsx';
 import { useCatalog } from '../hooks/useCatalog.js';
@@ -91,8 +91,8 @@ export default function HomeScreen() {
           <View>
             <View style={styles.topbar}>
               <View style={styles.brand}>
-                <Ionicons name="book-outline" size={22} color={colors.ink} />
-                <Text style={styles.wordmark}>inktrail</Text>
+                <Image source={require('../../assets/branding/panelpaw-icon.png')} accessibilityLabel="PanelPaw logo" style={{ width: 38, height: 38 }} />
+                <Text style={styles.wordmark}>PanelPaw</Text>
               </View>
               <IconButton name="options-outline" label="Configure tracker connection" onPress={() => router.push('/connection')} />
             </View>
